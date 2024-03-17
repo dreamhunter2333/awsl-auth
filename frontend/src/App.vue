@@ -1,6 +1,6 @@
 <script setup>
 import { NGrid, NGi, NSpace, NAlert, NButton, NMessageProvider } from 'naive-ui'
-import { NConfigProvider, NBackTop } from 'naive-ui';
+import { NConfigProvider, NBackTop, NSpin } from 'naive-ui';
 import { darkTheme, NGlobalStyle } from 'naive-ui'
 import { computed } from "vue";
 import { zhCN } from 'naive-ui'
