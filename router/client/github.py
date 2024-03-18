@@ -17,6 +17,7 @@ GITHUB_TOEKN_URL = "https://github.com/login/oauth/access_token" \
     f"?client_id={settings.github_client_id}" \
     f"&client_secret={settings.github_client_secret}"
 GITHUB_USER_URL = "https://api.github.com/user"
+GITHUB_EMAIL_URL = "https://api.github.com/user/emails"
 
 
 class GithubAuthClient(AuthClientBase):
@@ -47,10 +48,29 @@ class GithubAuthClient(AuthClientBase):
         ).json()
         user_name = res.get('login')
         user_email = res.get('email')
+
         if not user_name:
             raise ValueError("Can't get user name from github")
+
+        if not user_email:
+            res = requests.get(
+                GITHUB_EMAIL_URL,
+                headers={
+                    "Authorization": f"token {access_token}",
+                    "Accept": "application/json"
+                }
+            ).json()
+            fallback_emails = []
+            for email in res:
+                fallback_emails.append(email.get('email'))
+                if email.get('primary'):
+                    user_email = email.get('email')
+                    break
+            user_email = user_email or fallback_emails[0]
+
         if not user_email:
             raise ValueError("Can't get user email from github")
+
         return User(
             login_type=cls._login_type,
             user_name=user_name,
