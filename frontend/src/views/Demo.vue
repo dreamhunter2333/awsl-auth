@@ -70,7 +70,7 @@ onMounted(async () => {
 }
 
 .n-card {
-    max-width: 500px;
+    max-width: 600px;
     margin: 20px;
 }
 </style>

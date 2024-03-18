@@ -3,9 +3,9 @@ import { NCard, NButton, NTabs, NIcon, NResult } from 'naive-ui'
 import { NTabPane, NForm, NFormItem, NFormItemRow, NInput } from 'naive-ui'
 import { useMessage } from 'naive-ui'
 import { Github, Google } from '@vicons/fa'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 
 import { api } from '../api';
 import { useGlobalState } from '../store'
@@ -13,6 +13,11 @@ import { useGlobalState } from '../store'
 const { settings, appIdSession } = useGlobalState()
 const message = useMessage();
 const route = useRoute();
+const router = useRouter();
+
+const isEnableWeb3 = computed(() => {
+    return settings.value.enabled_web3 && window.ethereum;
+});
 
 const onLogin = async (login_type) => {
     try {
@@ -32,6 +37,17 @@ const onLogin = async (login_type) => {
         message.error(error.message || "登录失败");
     }
 };
+
+const web3Login = async () => {
+    if (!window.ethereum) return;
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    if (accounts.length <= 0) {
+        message.error("请安装 MetaMask");
+        return;
+    }
+    const account = accounts[0];
+    router.push(`/callback/web3?web3_account=${account}`);
+}
 
 onMounted(async () => {
     appIdSession.value = route.query.app_id;
@@ -77,6 +93,13 @@ onMounted(async () => {
                             <n-icon :component="Google" />
                         </template>
                         Google 登录
+                    </n-button>
+                    <n-button v-if="isEnableWeb3" block @click="web3Login">
+                        <template #icon>
+                            <img src="https://metamask.io/images/metamask-logo.png"
+                                style="height: 20px; width: auto;" />
+                        </template>
+                        MetaMask 登录
                     </n-button>
                 </n-tab-pane>
                 <n-tab-pane v-if="settings.enabled_smtp" name="signup" tab="注册">

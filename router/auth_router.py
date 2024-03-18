@@ -18,6 +18,7 @@ def auth_settings():
         "enabled_smtp": False,
         "enabled_github": bool(settings.github_client_id),
         "enabled_google": bool(settings.google_client_id),
+        "enabled_web3": settings.enabled_web3_client,
     }
 
 
@@ -38,7 +39,7 @@ def oauth(oauth_body: OauthBody):
     if not client:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content="Login type not supported"
+            detail="Login type not supported"
         )
     if oauth_body.app_id not in settings.app_settings:
         raise HTTPException(

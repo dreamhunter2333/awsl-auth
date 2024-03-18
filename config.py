@@ -23,7 +23,8 @@ class Settings(BaseSettings):
     google_client_secret: str = Field(default="", exclude=True)
     github_client_id: str = ""
     github_client_secret: str = Field(default="", exclude=True)
-    app_settings: Dict[str, AppSettings] = Field(default={}, exclude=False)
+    enabled_web3_client: bool = True
+    app_settings: Dict[str, AppSettings] = Field(default={}, exclude=True)
 
     @field_validator('app_settings')
     def convert_app_settings(cls, values: Dict[str, AppSettings]):
