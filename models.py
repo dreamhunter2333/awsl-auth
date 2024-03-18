@@ -5,8 +5,8 @@ from pydantic import BaseModel
 class OauthBody(BaseModel):
     app_id: str
     login_type: str
-    code: Optional[str]
-    redirect_url: Optional[str]
+    code: Optional[str] = None
+    redirect_url: Optional[str] = None
 
 
 class User(BaseModel):
