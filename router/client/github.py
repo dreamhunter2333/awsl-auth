@@ -42,8 +42,12 @@ class GithubAuthClient(AuthClientBase):
                 "Accept": "application/json"
             }
         ).json()
-        user_name = res['login']
-        user_email = res['email']
+        user_name = res.get('login')
+        user_email = res.get('email')
+        if not user_name:
+            raise ValueError("Can't get user name from github")
+        if not user_email:
+            raise ValueError("Can't get user email from github")
         return User(
             login_type=cls._login_type,
             user_name=user_name,

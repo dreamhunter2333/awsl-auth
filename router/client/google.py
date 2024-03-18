@@ -49,7 +49,9 @@ class GoogleAuthClient(AuthClientBase):
                 "Accept": "application/json"
             }
         ).json()
-        user_email = res['email']
+        user_email = res.get('email')
+        if not user_email:
+            raise ValueError("Can't get user email from google")
         user_name = user_email.replace("@gmail.com", "")
         return User(
             login_type=cls._login_type,

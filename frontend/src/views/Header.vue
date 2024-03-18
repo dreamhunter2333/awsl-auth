@@ -20,7 +20,7 @@ const { themeSwitch } = useGlobalState()
                 </template>
             </n-switch>
             <n-button style="margin: 10px;" tag="a" target="_blank" tertiary type="primary" round
-                href="https://github.com/dreamhunter2333/cloudflare_temp_email">
+                href="https://github.com/dreamhunter2333/awsl-auth">
                 <n-icon :component="StarOutlineFilled" /> Github
             </n-button>
         </div>
