@@ -25,6 +25,14 @@ onMounted(async () => {
     if (route.path == "/callback/github") {
         reqBody.login_type = "github";
         reqBody.code = route.query.code;
+    } else if (route.path == "/callback/google") {
+        reqBody.login_type = "google";
+        reqBody.code = route.query.code;
+        reqBody.redirect_url = window.location.origin + "/callback/google";
+    } else {
+        isFailed.value = true;
+        message.error(`登录失败 ${route.path}`);
+        return;
     }
     try {
         const response = await api.fetch(`/api/oauth`, {

@@ -22,7 +22,7 @@ class AuthClientBase(metaclass=MetaAuthClient):
         return cls
 
     @classmethod
-    def get_login_url(cls) -> str:
+    def get_login_url(cls, redirect_url: str = "") -> str:
         return None
 
     @classmethod

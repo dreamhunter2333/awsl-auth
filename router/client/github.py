@@ -23,7 +23,7 @@ class GithubAuthClient(AuthClientBase):
     _login_type = "github"
 
     @classmethod
-    def get_login_url(cls) -> str:
+    def get_login_url(cls, redirect_url: str = "") -> str:
         return GITHUB_URL
 
     @classmethod

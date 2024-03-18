@@ -5,18 +5,11 @@ import logging
 from fastapi import APIRouter, HTTPException, status
 
 from config import settings
-from models import OauthBody, User
+from models import OauthBody
 from router.client import AuthClientBase
 
 router = APIRouter()
 _logger = logging.getLogger(__name__)
-
-GITHUB_URL = "https://github.com/login/oauth/authorize?" \
-    f"client_id={settings.github_client_id}"
-GITHUB_TOEKN_URL = "https://github.com/login/oauth/access_token" \
-    f"?client_id={settings.github_client_id}" \
-    f"&client_secret={settings.github_client_secret}"
-GITHUB_USER_URL = "https://api.github.com/user"
 
 
 @router.get("/api/settings", tags=["Auth"])
@@ -24,19 +17,19 @@ def auth_settings():
     return {
         "enabled_smtp": False,
         "enabled_github": bool(settings.github_client_id),
-        "enabled_google": False,
+        "enabled_google": bool(settings.google_client_id),
     }
 
 
 @router.get("/api/login", tags=["Auth"])
-def login(login_type: str):
+def login(login_type: str, redirect_url: str = ""):
     client = AuthClientBase.get_client(login_type)
     if not client:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             content="Login type not supported"
         )
-    return client.get_login_url()
+    return client.get_login_url(redirect_url)
 
 
 @router.post("/api/oauth", tags=["Auth"])

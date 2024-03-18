@@ -6,6 +6,7 @@ class OauthBody(BaseModel):
     app_id: str
     login_type: str
     code: Optional[str]
+    redirect_url: Optional[str]
 
 
 class User(BaseModel):

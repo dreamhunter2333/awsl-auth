@@ -19,6 +19,8 @@ class AppSettings(BaseModel):
 
 
 class Settings(BaseSettings):
+    google_client_id: str = ""
+    google_client_secret: str = Field(default="", exclude=True)
     github_client_id: str = ""
     github_client_secret: str = Field(default="", exclude=True)
     app_settings: Dict[str, AppSettings] = Field(default={}, exclude=False)

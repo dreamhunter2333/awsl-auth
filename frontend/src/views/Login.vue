@@ -15,14 +15,22 @@ const message = useMessage();
 const route = useRoute();
 
 const onLogin = async (login_type) => {
-    const response = await api.fetch(`/api/login?login_type=${login_type}`, {
-        message: message
-    });
-    if (!response) {
-        message.error(`跳转失败 ${response}`);
-        return;
+    try {
+        const response = await api.fetch(
+            `/api/login?login_type=${login_type}` +
+            `&redirect_url=${window.location.origin}/callback/${login_type}`,
+            {
+                message: message
+            }
+        );
+        if (!response) {
+            message.error(`跳转失败 ${response}`);
+            return;
+        }
+        window.location.href = response;
+    } catch (error) {
+        message.error(error.message || "登录失败");
     }
-    window.location.href = response;
 };
 
 onMounted(async () => {
