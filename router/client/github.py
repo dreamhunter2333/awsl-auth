@@ -11,7 +11,8 @@ from config import settings
 _logger = logging.getLogger(__name__)
 
 GITHUB_URL = "https://github.com/login/oauth/authorize?" \
-    f"client_id={settings.github_client_id}"
+    f"client_id={settings.github_client_id}" \
+    "&scope=user:email"
 GITHUB_TOEKN_URL = "https://github.com/login/oauth/access_token" \
     f"?client_id={settings.github_client_id}" \
     f"&client_secret={settings.github_client_secret}"
@@ -34,6 +35,8 @@ class GithubAuthClient(AuthClientBase):
             f"{GITHUB_TOEKN_URL}&code={oauth_body.code}",
             headers={"Accept": "application/json"}
         ).json()
+        if not token_res.get('access_token'):
+            raise ValueError("Can't get access token from github")
         access_token = token_res['access_token']
         res = requests.get(
             GITHUB_USER_URL,

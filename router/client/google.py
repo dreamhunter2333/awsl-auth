@@ -41,6 +41,8 @@ class GoogleAuthClient(AuthClientBase):
             },
             headers={"Accept": "application/json"}
         ).json()
+        if not token_res.get('access_token'):
+            raise ValueError("Can't get access token from google")
         access_token = token_res['access_token']
         res = requests.get(
             GOOGLE_USER_URL,
