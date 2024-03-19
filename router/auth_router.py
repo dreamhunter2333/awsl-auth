@@ -20,6 +20,7 @@ def auth_settings():
         "enabled_smtp": False,
         "enabled_github": bool(settings.github_client_id),
         "enabled_google": bool(settings.google_client_id),
+        "enabled_ms": bool(settings.ms_client_id),
         "enabled_web3": settings.enabled_web3_client,
     }
 

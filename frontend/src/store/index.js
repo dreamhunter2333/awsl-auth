@@ -11,6 +11,7 @@ export const useGlobalState = createGlobalState(
             enabled_smtp: false,
             enabled_github: false,
             enabled_google: false,
+            enabled_ms: false,
             enabled_web3: false,
         });
         return {

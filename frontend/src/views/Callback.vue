@@ -32,6 +32,10 @@ onMounted(async () => {
     } else if (route.path == "/callback/web3") {
         reqBody.login_type = "web3";
         reqBody.web3_account = route.query.web3_account;
+    } else if (route.path == "/callback/ms") {
+        reqBody.login_type = "ms";
+        reqBody.code = route.query.code;
+        reqBody.redirect_url = window.location.origin + "/callback/ms";
     } else {
         isFailed.value = true;
         message.error(`登录失败 ${route.path}`);

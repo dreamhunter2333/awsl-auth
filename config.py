@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     google_client_secret: str = Field(default="", exclude=True)
     github_client_id: str = ""
     github_client_secret: str = Field(default="", exclude=True)
+    ms_client_id: str = ""
+    ms_client_secret: str = Field(default="", exclude=True)
     enabled_web3_client: bool = True
     app_settings: Dict[str, AppSettings] = Field(default={}, exclude=True)
 

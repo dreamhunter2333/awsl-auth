@@ -2,7 +2,7 @@
 import { NCard, NButton, NTabs, NIcon, NResult } from 'naive-ui'
 import { NTabPane, NForm, NFormItem, NFormItemRow, NInput } from 'naive-ui'
 import { useMessage } from 'naive-ui'
-import { Github, Google } from '@vicons/fa'
+import { Github, Google, Microsoft } from '@vicons/fa'
 import { useRoute, useRouter } from 'vue-router'
 
 import { computed, onMounted } from "vue";
@@ -93,6 +93,12 @@ onMounted(async () => {
                             <n-icon :component="Google" />
                         </template>
                         Google 登录
+                    </n-button>
+                    <n-button v-if="settings.enabled_ms" block @click="onLogin('ms')">
+                        <template #icon>
+                            <n-icon :component="Microsoft" />
+                        </template>
+                        Microsoft 登录
                     </n-button>
                     <n-button v-if="isEnableWeb3" block @click="web3Login">
                         <template #icon>
