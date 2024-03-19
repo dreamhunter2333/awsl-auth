@@ -10,12 +10,12 @@ from config import settings
 
 _logger = logging.getLogger(__name__)
 
-MS_URL = f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?" \
+MS_URL = f"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?" \
     f"client_id={settings.ms_client_id}" \
     "&response_type=code" \
     "&response_mode=query" \
     "&scope=https%3A%2F%2Fgraph.microsoft.com%2FUser.Read"
-MS_TOEKN_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+MS_TOEKN_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token"
 MS_USER_URL = "https://graph.microsoft.com/v1.0/me"
 
 
