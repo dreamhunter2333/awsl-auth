@@ -26,12 +26,27 @@ onMounted(async () => {
         return;
     }
     if (code) {
-        jwtSession.value = code;
+        try {
+            const { jwt } = await api.fetch("/api/token", {
+                method: "POST",
+                message: message,
+                body: JSON.stringify({
+                    app_id: appIdSession.value || "demo",
+                    app_secret: "demo_secret",
+                    code: code,
+                })
+            });
+            jwtSession.value = jwt;
+        } catch (error) {
+            message.error(error.message || "登录失败");
+            return;
+        }
         router.push('/demo');
     }
     try {
         const app_id = appIdSession.value || "demo";
         user.value = await api.fetch(`/api/info?app_id=${app_id}`, {
+            message: message,
             headers: {
                 'Authorization': `Bearer ${jwtSession.value}`,
                 'Content-Type': 'application/json',

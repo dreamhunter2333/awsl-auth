@@ -4,5 +4,6 @@ pydantic==2.6.4
 pydantic-settings==2.2.1
 PyJWT==2.8.0
 python-dotenv==1.0.1
+redis==5.0.3
 requests==2.31.0
 uvicorn==0.28.0

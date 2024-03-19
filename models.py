@@ -10,6 +10,12 @@ class OauthBody(BaseModel):
     redirect_url: Optional[str] = None
 
 
+class TokenBody(BaseModel):
+    app_id: str
+    app_secret: str
+    code: str
+
+
 class User(BaseModel):
     login_type: str
     user_name: str

@@ -19,6 +19,11 @@ class AppSettings(BaseModel):
 
 
 class Settings(BaseSettings):
+    token_client: str = "upstash"
+    redis_url: str = Field(default="", exclude=True)
+    upstash_api_url: str = ""
+    upstash_api_token: str = Field(default="", exclude=True)
+    code_expire_seconds: int = 30
     google_client_id: str = ""
     google_client_secret: str = Field(default="", exclude=True)
     github_client_id: str = ""

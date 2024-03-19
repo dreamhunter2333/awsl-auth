@@ -1,12 +1,14 @@
 import jwt
+import uuid
 import datetime
 import logging
 
 from fastapi import APIRouter, HTTPException, status
 
 from config import settings
-from models import OauthBody
+from models import OauthBody, TokenBody
 from router.client import AuthClientBase
+from router.token.base import TokenClientBase
 
 router = APIRouter()
 _logger = logging.getLogger(__name__)
@@ -66,7 +68,35 @@ def oauth(oauth_body: OauthBody):
         app_settings.app_secret,
         algorithm="HS256"
     )
+    token_client = TokenClientBase.get_client(settings.token_client)
+    if not token_client:
+        raise HTTPException(
+            status_code=400, detail="Token client not found"
+        )
+    code = uuid.uuid4().hex
+    res = token_client.store_token(f"{app_settings.app_id}:{code}", jwt_value)
+    if not res:
+        raise HTTPException(
+            status_code=400, detail="Store token failed"
+        )
     return {
         "redirect_url": app_settings.redirect_url,
+        "code": code
+    }
+
+
+@router.post("/api/token", tags=["Auth"])
+def token(token_body: TokenBody):
+    token_client = TokenClientBase.get_client(settings.token_client)
+    if not token_client:
+        raise HTTPException(
+            status_code=400, detail="Token client not found"
+        )
+    jwt_value = token_client.get_token(f"{token_body.app_id}:{token_body.code}")
+    if not jwt_value:
+        raise HTTPException(
+            status_code=400, detail="Token not found or expired"
+        )
+    return {
         "jwt": jwt_value
     }

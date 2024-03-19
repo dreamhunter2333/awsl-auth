@@ -47,19 +47,19 @@ onMounted(async () => {
             message.error(`登录失败 ${response}`);
             return;
         }
-        const { jwt, redirect_url } = response;
-        if (!jwt) {
+        const { code, redirect_url } = response;
+        if (!code) {
             isFailed.value = true;
             message.error(`登录失败 ${response}`);
             return;
         }
         if (redirect_url) {
             const url = new URL(redirect_url);
-            url.searchParams.set("code", jwt);
+            url.searchParams.set("code", code);
             window.location.href = url.href;
             return;
         }
-        router.push(`/demo?code=${jwt}`);
+        router.push(`/demo?code=${code}`);
     } catch (error) {
         isFailed.value = true;
         message.error(`登录失败 ${error.message}`);
