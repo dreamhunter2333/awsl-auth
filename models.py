@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class OauthBody(BaseModel):
@@ -16,9 +16,17 @@ class TokenBody(BaseModel):
     code: str
 
 
+class EmailUser(BaseModel):
+    email: str
+    password: str = ""
+    code: str = ""
+
+
 class User(BaseModel):
     login_type: str
     user_name: str
     user_email: str
     web3_account: Optional[str] = None
+    origin_data: Optional[dict] = Field(None, exclude=True)
+    password: Optional[str] = Field(None, exclude=True)
     expire_at: float = 0

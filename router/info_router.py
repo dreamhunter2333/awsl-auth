@@ -13,6 +13,17 @@ security = HTTPBearer()
 _logger = logging.getLogger(__name__)
 
 
+@router.get("/api/settings", tags=["Auth"])
+def auth_settings():
+    return {
+        "enabled_smtp": settings.enabled_db and settings.enabled_smtp,
+        "enabled_github": bool(settings.github_client_id),
+        "enabled_google": bool(settings.google_client_id),
+        "enabled_ms": bool(settings.ms_client_id),
+        "enabled_web3": settings.enabled_web3_client,
+    }
+
+
 @router.get("/api/info", tags=["User"])
 def info(app_id: str, credentials: HTTPAuthorizationCredentials = Depends(security)) -> User:
     if app_id not in settings.app_settings:

@@ -1,11 +1,11 @@
 <script setup>
-import { NCard, NButton, NTabs, NIcon, NResult } from 'naive-ui'
-import { NTabPane, NForm, NFormItem, NFormItemRow, NInput } from 'naive-ui'
+import { NCard, NButton, NTabs, NIcon, NResult, NInputGroup } from 'naive-ui'
+import { NTabPane, NForm, NFormItem, NFormItemRow, NInput, NModal } from 'naive-ui'
 import { useMessage } from 'naive-ui'
 import { Github, Google, Microsoft } from '@vicons/fa'
 import { useRoute, useRouter } from 'vue-router'
 
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import { api } from '../api';
 import { useGlobalState } from '../store'
@@ -15,11 +15,21 @@ const message = useMessage();
 const route = useRoute();
 const router = useRouter();
 
+const tabValue = ref("tabValue");
+tabValue.value = "signin";
+const showModal = ref(false);
+const user = ref({
+    email: "",
+    password: "",
+    code: ""
+});
+
+
 const isEnableWeb3 = computed(() => {
     return settings.value.enabled_web3 && window.ethereum;
 });
 
-const onLogin = async (login_type) => {
+const onOauthLogin = async (login_type) => {
     try {
         const response = await api.fetch(
             `/api/login?login_type=${login_type}` +
@@ -49,6 +59,90 @@ const web3Login = async () => {
     router.push(`/callback/web3?web3_account=${account}`);
 }
 
+const hashPassword = async (password) => {
+    // user crypto to hash password
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+    const hashArray = Array.from(new Uint8Array(digest));
+    return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+const emailLogin = async () => {
+    if (!user.value.email || !user.value.password) {
+        message.error("请输入邮箱和密码");
+        return;
+    }
+    try {
+        const res = await api.fetch(`/api/email/login`, {
+            method: "POST",
+            body: JSON.stringify({
+                email: user.value.email,
+                // hash password
+                password: await hashPassword(user.value.password)
+            }),
+            message: message
+        });
+        if (!res || !res.code) {
+            message.error("登录失败");
+            return;
+        }
+        router.push(`/callback/email?code=${res.code}`);
+    } catch (error) {
+        message.error(error.message || "登录失败");
+    }
+};
+
+const sendVerificationCode = async () => {
+    if (!user.value.email) {
+        message.error("请输入邮箱");
+        return;
+    }
+    try {
+        const res = await api.fetch(`/api/email/verify_code`, {
+            method: "POST",
+            body: JSON.stringify({
+                email: user.value.email
+            }),
+            message: message
+        });
+        if (res) {
+            message.success(
+                `验证码已发送, 有效期 ${res.timeout} 秒`,
+                {
+                    closable: true,
+                    duration: (res.timeout || 120) * 1000
+                }
+            );
+        }
+    } catch (error) {
+        message.error(error.message || "发送验证码失败");
+    }
+};
+
+const emailSignup = async () => {
+    if (!user.value.email || !user.value.password || !user.value.code) {
+        message.error("请输入邮箱, 密码和验证码");
+        return;
+    }
+    try {
+        const res = await api.fetch(`/api/email/register`, {
+            method: "POST",
+            body: JSON.stringify({
+                email: user.value.email,
+                // hash password
+                password: await hashPassword(user.value.password),
+                code: user.value.code
+            }),
+            message: message
+        });
+        if (res) {
+            tabValue.value = "signin";
+            message.success("注册成功, 请登录");
+        }
+    } catch (error) {
+        message.error(error.message || "注册失败");
+    }
+};
+
 onMounted(async () => {
     appIdSession.value = route.query.app_id;
     try {
@@ -65,36 +159,36 @@ onMounted(async () => {
 <template>
     <div class="main">
         <n-card style="max-width: 500px;">
-            <img style="max-height: 100px; max-width: auto;" src="/awsl.png">
-            <n-tabs default-value="signin" size="large" justify-content="space-evenly">
+            <img style="max-height: 50px; max-width: auto;" src="/awsl.png">
+            <n-tabs v-model:value="tabValue" default-value="signin" size="large" justify-content="space-evenly">
                 <n-tab-pane name="signin" tab="登录">
                     <n-form v-if="settings.enabled_smtp">
-                        <n-form-item-row label="邮箱">
-                            <n-input />
+                        <n-form-item-row label="邮箱" required>
+                            <n-input v-model:value="user.email" />
                         </n-form-item-row>
-                        <n-form-item-row label="密码">
-                            <n-input type="password" show-password-on="click" />
+                        <n-form-item-row label="密码" required>
+                            <n-input v-model:value="user.password" type="password" show-password-on="click" />
                         </n-form-item-row>
-                        <n-button quaternary size="small">
-                            忘记密码?
-                        </n-button>
-                        <n-button type="primary" block secondary strong>
+                        <n-button @click="emailLogin" type="primary" block secondary strong>
                             登录
                         </n-button>
+                        <n-button @click="showModal = true" type="info" quaternary size="tiny">
+                            忘记密码?
+                        </n-button>
                     </n-form>
-                    <n-button v-if="settings.enabled_github" block @click="onLogin('github')">
+                    <n-button v-if="settings.enabled_github" block @click="onOauthLogin('github')">
                         <template #icon>
                             <n-icon :component="Github" />
                         </template>
                         Github 登录
                     </n-button>
-                    <n-button v-if="settings.enabled_google" block @click="onLogin('google')">
+                    <n-button v-if="settings.enabled_google" block @click="onOauthLogin('google')">
                         <template #icon>
                             <n-icon :component="Google" />
                         </template>
                         Google 登录
                     </n-button>
-                    <n-button v-if="settings.enabled_ms" block @click="onLogin('ms')">
+                    <n-button v-if="settings.enabled_ms" block @click="onOauthLogin('ms')">
                         <template #icon>
                             <n-icon :component="Microsoft" />
                         </template>
@@ -110,22 +204,48 @@ onMounted(async () => {
                 </n-tab-pane>
                 <n-tab-pane v-if="settings.enabled_smtp" name="signup" tab="注册">
                     <n-form>
-                        <n-form-item-row label="邮箱">
-                            <n-input />
+                        <n-form-item-row label="邮箱" required>
+                            <n-input v-model:value="user.email" />
                         </n-form-item-row>
-                        <n-form-item-row label="密码">
-                            <n-input type="password" show-password-on="click" />
+                        <n-form-item-row label="密码" required>
+                            <n-input v-model:value="user.password" type="password" show-password-on="click" />
                         </n-form-item-row>
-                        <n-form-item-row label="验证码">
-                            <n-input />
+                        <n-form-item-row label="验证码" required>
+                            <n-input-group>
+                                <n-input v-model:value="user.code" />
+                                <n-button @click="sendVerificationCode" style="margin-bottom: 0" type="primary" ghost>
+                                    发送验证码
+                                </n-button>
+                            </n-input-group>
                         </n-form-item-row>
                     </n-form>
-                    <n-button type="primary" block secondary strong>
+                    <n-button @click="emailSignup" type="primary" block secondary strong>
                         注册
                     </n-button>
                 </n-tab-pane>
             </n-tabs>
         </n-card>
+        <n-modal v-model:show="showModal" style="max-width: 600px;" preset="card" title="重置密码">
+            <n-form>
+                <n-form-item-row label="邮箱" required>
+                    <n-input v-model:value="user.email" />
+                </n-form-item-row>
+                <n-form-item-row label="新密码" required>
+                    <n-input v-model:value="user.password" type="password" show-password-on="click" />
+                </n-form-item-row>
+                <n-form-item-row label="验证码" required>
+                    <n-input-group>
+                        <n-input v-model:value="user.code" />
+                        <n-button @click="sendVerificationCode" style="margin-bottom: 0" type="primary" ghost>
+                            发送验证码
+                        </n-button>
+                    </n-input-group>
+                </n-form-item-row>
+            </n-form>
+            <n-button @click="emailSignup" type="primary" block secondary strong>
+                重置密码
+            </n-button>
+        </n-modal>
     </div>
 </template>
 

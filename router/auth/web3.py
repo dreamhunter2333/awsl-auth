@@ -1,12 +1,10 @@
-import requests
 import logging
 
 from typing import Optional
 
 from models import OauthBody, User
 
-from router.client.base import AuthClientBase
-from config import settings
+from router.auth.base import AuthClientBase
 
 _logger = logging.getLogger(__name__)
 
@@ -14,10 +12,6 @@ _logger = logging.getLogger(__name__)
 class Web3AuthClient(AuthClientBase):
 
     _login_type = "web3"
-
-    @classmethod
-    def get_login_url(cls, redirect_url: str = "") -> str:
-        return ""
 
     @classmethod
     def get_user(cls, oauth_body: OauthBody) -> Optional[User]:

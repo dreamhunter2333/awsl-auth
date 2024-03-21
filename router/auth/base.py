@@ -1,4 +1,6 @@
 from typing import Optional
+
+from fastapi import HTTPException, status
 from models import OauthBody, User
 
 
@@ -18,13 +20,16 @@ class AuthClientBase(metaclass=MetaAuthClient):
     def get_client(login_type: str) -> Optional["AuthClientBase"]:
         cls = MetaAuthClient.cilent_map.get(login_type)
         if cls is None:
-            return
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Login type not supported"
+            )
         return cls
 
     @classmethod
     def get_login_url(cls, redirect_url: str = "") -> str:
-        return None
+        raise NotImplementedError()
 
     @classmethod
     def get_user(cls, oauth_body: OauthBody) -> Optional[User]:
-        return None
+        raise NotImplementedError()

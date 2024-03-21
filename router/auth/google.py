@@ -5,7 +5,7 @@ from typing import Optional
 
 from models import OauthBody, User
 
-from router.client.base import AuthClientBase
+from router.auth.base import AuthClientBase
 from config import settings
 
 _logger = logging.getLogger(__name__)
@@ -51,6 +51,7 @@ class GoogleAuthClient(AuthClientBase):
                 "Accept": "application/json"
             }
         ).json()
+        origin_data = res
         user_email = res.get('email')
         if not user_email:
             raise ValueError("Can't get user email from google")
@@ -58,5 +59,6 @@ class GoogleAuthClient(AuthClientBase):
         return User(
             login_type=cls._login_type,
             user_name=user_name,
-            user_email=user_email
+            user_email=user_email,
+            origin_data=origin_data
         )

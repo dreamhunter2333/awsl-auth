@@ -19,17 +19,16 @@ const apiFetch = async (path, options = {}) => {
                 'Content-Type': 'application/json',
             },
         });
-        // if (response.status === 401 && openSettings.value.auth) {
-        //     throw new Error("Unauthorized, you password is wrong")
-        // }
-        // if (response.status === 401 && path.startsWith("/admin")) {
-        //     throw new Error("Unauthorized, you admin password is wrong")
-        // }
         if (response.status >= 300) {
             throw new Error(`${response.status} ${response.data}` || "error");
         }
         const data = response.data;
         return data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(`Code ${error.response.status}: ${error.response.data?.detail}` || "error");
+        }
+        throw error;
     } finally {
         loading.value = false;
     }

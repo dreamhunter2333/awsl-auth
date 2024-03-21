@@ -5,7 +5,7 @@ from typing import Optional
 
 from models import OauthBody, User
 
-from router.client.base import AuthClientBase
+from router.auth.base import AuthClientBase
 from config import settings
 
 _logger = logging.getLogger(__name__)
@@ -48,6 +48,7 @@ class GithubAuthClient(AuthClientBase):
         ).json()
         user_name = res.get('login')
         user_email = res.get('email')
+        origin_data = res
 
         if not user_name:
             raise ValueError("Can't get user name from github")
@@ -74,5 +75,6 @@ class GithubAuthClient(AuthClientBase):
         return User(
             login_type=cls._login_type,
             user_name=user_name,
-            user_email=user_email
+            user_email=user_email,
+            origin_data=origin_data
         )

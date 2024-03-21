@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 import redis
 import logging
 
@@ -22,14 +23,16 @@ class RedisTokenClient(TokenClientBase):
             cls.redis_client = redis.Redis.from_url(settings.redis_url, decode_responses=True)
 
     @classmethod
-    def store_token(cls, key: str, token: str) -> bool:
+    def store_token(cls, key: str, token: str, expire_seconds: int) -> None:
         cls.init_redis()
         try:
-            cls.redis_client.set(key, token, ex=settings.code_expire_seconds)
-            return True
+            cls.redis_client.set(key, token, ex=expire_seconds)
+            return
         except Exception as e:
             _logger.error(f"Store token failed: {e}")
-        return False
+        raise HTTPException(
+            status_code=400, detail="Store token failed"
+        )
 
     @classmethod
     def get_token(cls, key: str) -> Optional[str]:
@@ -39,3 +42,7 @@ class RedisTokenClient(TokenClientBase):
         except Exception as e:
             _logger.error(f"Get token failed: {e}")
             return None
+
+    @classmethod
+    def check_rate_limit(cls, key: str, time_window_seconds: int, max_requests: int) -> None:
+        return

@@ -1,14 +1,13 @@
-import os
 import logging
 import uvicorn
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import PlainTextResponse
 
 from router.auth_router import router as auth_router
 from router.info_router import router as info_router
+from router.user_router import router as user_router
 
 
 _logger = logging.getLogger(__name__)
@@ -29,6 +28,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(info_router)
+app.include_router(user_router)
 
 
 @app.exception_handler(Exception)

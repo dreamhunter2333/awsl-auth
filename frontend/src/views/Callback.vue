@@ -36,6 +36,9 @@ onMounted(async () => {
         reqBody.login_type = "ms";
         reqBody.code = route.query.code;
         reqBody.redirect_url = window.location.origin + "/callback/ms";
+    } else if (route.path == "/callback/email") {
+        reqBody.login_type = "email";
+        reqBody.code = route.query.code;
     } else {
         isFailed.value = true;
         message.error(`登录失败 ${route.path}`);
