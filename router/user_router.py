@@ -55,7 +55,7 @@ def verify_code(email_user: EmailUser):
         )
     code = "".join(random.choices(string.digits, k=6))
     token_client.store_token(f"email_verify_code:{email_user.email}", code, settings.verify_code_expire_seconds)
-    # mail_client.send_verify_code(email_user.email, code)
+    mail_client.send_verify_code(email_user.email, code)
     return {
         "timeout": settings.verify_code_expire_seconds,
     }
