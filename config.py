@@ -36,10 +36,12 @@ class Settings(BaseSettings):
     # smtp settings
     enabled_smtp: bool = False
     mail_client: str = "smtp"
-    smtp_url: str = ""
+    smtp_url: str = Field(default="", exclude=True)
     verify_code_expire_seconds: int = 120
     email_rate_limit_timewindow_seconds: int = 60
     email_rate_limit_max_requests: int = 60
+    cf_turnstile_site_key: str = ""
+    cf_turnstile_secret_key: str = Field(default="", exclude=True)
 
     # oauth settings
     google_client_id: str = ""

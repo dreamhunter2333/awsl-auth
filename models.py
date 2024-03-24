@@ -19,6 +19,7 @@ class TokenBody(BaseModel):
 class EmailUser(BaseModel):
     email: str
     password: str = ""
+    cf_token: str = ""
     code: str = ""
 
 

@@ -5,12 +5,12 @@ import { useMessage } from 'naive-ui'
 import { Github, Google, Microsoft } from '@vicons/fa'
 import { useRoute, useRouter } from 'vue-router'
 
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import { api } from '../api';
 import { useGlobalState } from '../store'
 
-const { settings, appIdSession } = useGlobalState()
+const { settings, appIdSession, themeSwitch } = useGlobalState()
 const message = useMessage();
 const route = useRoute();
 const router = useRouter();
@@ -91,27 +91,31 @@ const emailLogin = async () => {
     }
 };
 
+const verify_code_timeout = ref(0);
 const sendVerificationCode = async () => {
-    if (!user.value.email) {
-        message.error("请输入邮箱");
+    if (!user.value.email || !cf_token.value) {
+        message.error("请输入邮箱并通过人机验证");
         return;
     }
     try {
         const res = await api.fetch(`/api/email/verify_code`, {
             method: "POST",
             body: JSON.stringify({
-                email: user.value.email
+                email: user.value.email,
+                cf_token: cf_token.value
             }),
             message: message
         });
-        if (res) {
-            message.success(
-                `验证码已发送, 有效期 ${res.timeout} 秒`,
-                {
-                    closable: true,
-                    duration: (res.timeout || 120) * 1000
+        if (res && res.timeout) {
+            message.success(`验证码已发送, 有效期 ${res.timeout} 秒`);
+            verify_code_timeout.value = res.timeout;
+            const intervalId = setInterval(() => {
+                verify_code_timeout.value -= 1;
+                if (verify_code_timeout.value <= 0) {
+                    clearInterval(intervalId);
+                    verify_code_timeout.value = 0;
                 }
-            );
+            }, 1000);
         }
     } catch (error) {
         message.error(error.message || "发送验证码失败");
@@ -142,6 +146,36 @@ const emailSignup = async () => {
         message.error(error.message || "注册失败");
     }
 };
+
+const cf_turnstile_id = ref("")
+const cf_token = ref("")
+const checkCfTurnstile = async (remove) => {
+    if (!settings.value.cf_turnstile_site_key) return;
+    let container = document.getElementById("cf-turnstile");
+    let count = 100;
+    while (!container && count-- > 0) {
+        container = document.getElementById("cf-turnstile");
+        await new Promise(r => setTimeout(r, 100));
+    }
+    if (remove && cf_turnstile_id.value) {
+        window.turnstile.remove(cf_turnstile_id.value);
+    }
+    cf_turnstile_id.value = window.turnstile.render(
+        "#cf-turnstile",
+        {
+            sitekey: settings.value.cf_turnstile_site_key,
+            language: 'zh-CN',
+            theme: themeSwitch.value ? 'dark' : 'light',
+            callback: function (token) {
+                cf_token.value = token;
+            },
+        }
+    );
+}
+
+watch([tabValue, themeSwitch, showModal], async ([newValue, oldValue], [newTheme, oldTheme]) => {
+    checkCfTurnstile(newValue != "signup")
+}, { immediate: true })
 
 onMounted(async () => {
     appIdSession.value = route.query.app_id;
@@ -210,11 +244,14 @@ onMounted(async () => {
                         <n-form-item-row label="密码" required>
                             <n-input v-model:value="user.password" type="password" show-password-on="click" />
                         </n-form-item-row>
+                        <div v-if="settings.cf_turnstile_site_key && !cf_turnstile_id">人机验证正在加载...</div>
+                        <div v-if="settings.cf_turnstile_site_key" id="cf-turnstile"></div>
                         <n-form-item-row label="验证码" required>
                             <n-input-group>
                                 <n-input v-model:value="user.code" />
-                                <n-button @click="sendVerificationCode" style="margin-bottom: 0" type="primary" ghost>
-                                    发送验证码
+                                <n-button @click="sendVerificationCode" style="margin-bottom: 0" type="primary" ghost
+                                    :disabled="verify_code_timeout > 0">
+                                    {{ verify_code_timeout > 0 ? `等待${verify_code_timeout}秒` : "发送验证码" }}
                                 </n-button>
                             </n-input-group>
                         </n-form-item-row>
@@ -233,11 +270,14 @@ onMounted(async () => {
                 <n-form-item-row label="新密码" required>
                     <n-input v-model:value="user.password" type="password" show-password-on="click" />
                 </n-form-item-row>
+                <div v-if="settings.cf_turnstile_site_key && !cf_turnstile_id">人机验证正在加载...</div>
+                <div v-if="settings.cf_turnstile_site_key" id="cf-turnstile"></div>
                 <n-form-item-row label="验证码" required>
                     <n-input-group>
                         <n-input v-model:value="user.code" />
-                        <n-button @click="sendVerificationCode" style="margin-bottom: 0" type="primary" ghost>
-                            发送验证码
+                        <n-button @click="sendVerificationCode" style="margin-bottom: 0" type="primary" ghost
+                            :disabled="verify_code_timeout > 0">
+                            {{ verify_code_timeout > 0 ? `等待${verify_code_timeout}秒` : "发送验证码" }}
                         </n-button>
                     </n-input-group>
                 </n-form-item-row>

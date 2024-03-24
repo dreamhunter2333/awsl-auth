@@ -13,6 +13,7 @@ export const useGlobalState = createGlobalState(
             enabled_google: false,
             enabled_ms: false,
             enabled_web3: false,
+            cf_turnstile_site_key: '',
         });
         return {
             loading,

@@ -4,11 +4,12 @@ import random
 import string
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from config import settings
 from models import EmailUser, User
 from router.auth.email import MailAuthClient
+from router.cf_turnstile import CloudFlareTurnstile
 from router.db.base import DBClientBase
 from router.email.base import MailClientBase
 from router.token.base import TokenClientBase
@@ -36,12 +37,25 @@ def login(email_user: EmailUser):
     }
 
 
+def get_real_ipaddr(request: Request) -> str:
+    if "x-real-ip" in request.headers:
+        return request.headers["x-real-ip"]
+    else:
+        if not request.client or not request.client.host:
+            return "127.0.0.1"
+
+        return request.client.host
+
+
 @router.post("/api/email/verify_code", tags=["Email"])
-def verify_code(email_user: EmailUser):
+def verify_code(email_user: EmailUser, request: Request):
     if not EMAIL_REGEX.match(email_user.email):
         raise HTTPException(
             status_code=400, detail="Invalid email"
         )
+    remote_ip = get_real_ipaddr(request)
+    CloudFlareTurnstile.check(email_user.cf_token, remote_ip)
+    _logger.info(f"remote_ip={remote_ip}, Verify code for {email_user.email}")
     token_client = TokenClientBase.get_client(settings.token_client)
     mail_client = MailClientBase.get_client(settings.mail_client)
     token_client.check_rate_limit(
@@ -79,7 +93,6 @@ def register(email_user: EmailUser):
         raise HTTPException(
             status_code=400, detail="Can't get verify code"
         )
-    _logger.info(f"Verify code: {res}, input code: {email_user.code}")
     if res != email_user.code:
         raise HTTPException(
             status_code=400, detail="Verify code not match"

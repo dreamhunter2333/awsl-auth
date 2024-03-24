@@ -21,6 +21,7 @@ def auth_settings():
         "enabled_google": bool(settings.google_client_id),
         "enabled_ms": bool(settings.ms_client_id),
         "enabled_web3": settings.enabled_web3_client,
+        "cf_turnstile_site_key": settings.cf_turnstile_site_key,
     }
 
 
