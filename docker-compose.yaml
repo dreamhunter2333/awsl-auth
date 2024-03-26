@@ -1,0 +1,25 @@
+services:
+  awsl-auth:
+    image: "awsl-auth:latest"
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: "awsl-auth"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+      - /dev/null:/app/.env
+    env_file:
+      - .env.docker
+    environment:
+      - redis_url=redis://awsl-auth-redis:6379/0
+      - sqlite_db_url=sqlite:////data/db.sqlite3
+    depends_on:
+      - awsl-auth-redis
+
+  awsl-auth-redis:
+    image: "redis:alpine"
+    container_name: "awsl-auth-redis"
+    ports:
+      - "6379:6379"

@@ -12,6 +12,8 @@ class CloudFlareTurnstile:
 
     @classmethod
     def check(cls, token: str, remote_ip: str) -> bool:
+        if not settings.cf_turnstile_secret_key:
+            return True
         try:
             res = requests.post(URL, data={
                 "secret": settings.cf_turnstile_secret_key,

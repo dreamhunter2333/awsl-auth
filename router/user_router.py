@@ -22,8 +22,8 @@ EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 @router.post("/api/email/login", tags=["Email"])
 def login(email_user: EmailUser):
-    token_client = TokenClientBase.get_client(settings.token_client)
-    db_client = DBClientBase.get_client(settings.db_client)
+    token_client = TokenClientBase.get_client()
+    db_client = DBClientBase.get_client()
     db_client.login_user(User(
         login_type=MailAuthClient._login_type,
         user_name=email_user.email,
@@ -56,8 +56,8 @@ def verify_code(email_user: EmailUser, request: Request):
     remote_ip = get_real_ipaddr(request)
     CloudFlareTurnstile.check(email_user.cf_token, remote_ip)
     _logger.info(f"remote_ip={remote_ip}, Verify code for {email_user.email}")
-    token_client = TokenClientBase.get_client(settings.token_client)
-    mail_client = MailClientBase.get_client(settings.mail_client)
+    token_client = TokenClientBase.get_client()
+    mail_client = MailClientBase.get_client()
     token_client.check_rate_limit(
         "email_rate_limit", settings.email_rate_limit_timewindow_seconds,
         settings.email_rate_limit_max_requests
@@ -86,8 +86,8 @@ def register(email_user: EmailUser):
         raise HTTPException(
             status_code=400, detail="Invalid email user"
         )
-    db_client = DBClientBase.get_client(settings.db_client)
-    token_client = TokenClientBase.get_client(settings.token_client)
+    db_client = DBClientBase.get_client()
+    token_client = TokenClientBase.get_client()
     res = token_client.get_token(f"email_verify_code:{email_user.email}")
     if not res:
         raise HTTPException(

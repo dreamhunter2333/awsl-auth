@@ -93,8 +93,12 @@ const emailLogin = async () => {
 
 const verify_code_timeout = ref(0);
 const sendVerificationCode = async () => {
-    if (!user.value.email || !cf_token.value) {
-        message.error("请输入邮箱并通过人机验证");
+    if (!user.value.email) {
+        message.error("请输入邮箱");
+        return;
+    }
+    if (!cf_token.value && settings.value.cf_turnstile_site_key) {
+        message.error("请完成人机验证");
         return;
     }
     try {

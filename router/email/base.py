@@ -1,5 +1,7 @@
 from fastapi import HTTPException, status
 
+from config import settings
+
 
 class MetaMailClient(type):
 
@@ -14,8 +16,8 @@ class MetaMailClient(type):
 class MailClientBase(metaclass=MetaMailClient):
 
     @staticmethod
-    def get_client(client_type: str) -> "MailClientBase":
-        cls = MetaMailClient.cilent_map.get(client_type)
+    def get_client() -> "MailClientBase":
+        cls = MetaMailClient.cilent_map.get(settings.mail_client_type)
         if cls is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

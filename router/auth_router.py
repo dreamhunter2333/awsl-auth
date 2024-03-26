@@ -48,12 +48,12 @@ def oauth(oauth_body: OauthBody):
         app_settings.app_secret,
         algorithm="HS256"
     )
-    token_client = TokenClientBase.get_client(settings.token_client)
+    token_client = TokenClientBase.get_client()
     code = uuid.uuid4().hex
     token_client.store_token(f"{app_settings.app_id}:{code}", jwt_value, settings.token_code_expire_seconds)
     # update user info to db if enabled
     if settings.enabled_db:
-        db_client = DBClientBase.get_client(settings.db_client)
+        db_client = DBClientBase.get_client()
         db_client.update_oauth_user(user)
     return {
         "redirect_url": app_settings.redirect_url,
@@ -63,7 +63,7 @@ def oauth(oauth_body: OauthBody):
 
 @router.post("/api/token", tags=["Auth"])
 def token(token_body: TokenBody):
-    token_client = TokenClientBase.get_client(settings.token_client)
+    token_client = TokenClientBase.get_client()
     if not token_client:
         raise HTTPException(
             status_code=400, detail="Token client not found"

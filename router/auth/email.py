@@ -6,7 +6,6 @@ from models import OauthBody, User
 
 from router.auth.base import AuthClientBase
 from router.token import TokenClientBase
-from config import settings
 
 _logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ class MailAuthClient(AuthClientBase):
     def get_user(cls, oauth_body: OauthBody) -> Optional[User]:
         if not oauth_body.code:
             return None
-        token_client = TokenClientBase.get_client(settings.token_client)
+        token_client = TokenClientBase.get_client()
         user_email = token_client.get_token(f"email_login:{oauth_body.code}")
         if not user_email:
             raise ValueError("Can't get user email from token")

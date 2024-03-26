@@ -21,7 +21,7 @@ class AppSettings(BaseModel):
 class Settings(BaseSettings):
 
     # token settings
-    token_client: str = "upstash"
+    token_client_type: str = "upstash"
     redis_url: str = Field(default="", exclude=True)
     upstash_api_url: str = ""
     upstash_api_token: str = Field(default="", exclude=True)
@@ -29,13 +29,14 @@ class Settings(BaseSettings):
 
     # db settings
     enabled_db: bool = False
-    db_client: str = "supabase_rest"
+    db_client_type: str = "supabase_rest"
     supabase_api_url: str = ""
     supabase_api_key: str = Field(default="", exclude=True)
+    sqlite_db_url: str = "sqlite:///db.sqlite3"
 
     # smtp settings
     enabled_smtp: bool = False
-    mail_client: str = "smtp"
+    mail_client_type: str = "smtp"
     smtp_url: str = Field(default="", exclude=True)
     verify_code_expire_seconds: int = 120
     email_rate_limit_timewindow_seconds: int = 60

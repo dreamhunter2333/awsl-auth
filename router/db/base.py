@@ -17,12 +17,12 @@ class MetaDBClient(type):
 class DBClientBase(metaclass=MetaDBClient):
 
     @staticmethod
-    def get_client(db_type: str) -> "DBClientBase":
+    def get_client() -> "DBClientBase":
         if not settings.enabled_db:
             raise HTTPException(
                 status_code=400, detail="DB not enabled"
             )
-        cls = MetaDBClient.cilent_map.get(db_type)
+        cls = MetaDBClient.cilent_map.get(settings.db_client_type)
         if cls is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

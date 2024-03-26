@@ -1,3 +1,4 @@
+import time
 from fastapi import HTTPException
 import redis
 import logging
@@ -24,8 +25,8 @@ class RedisTokenClient(TokenClientBase):
 
     @classmethod
     def store_token(cls, key: str, token: str, expire_seconds: int) -> None:
-        cls.init_redis()
         try:
+            cls.init_redis()
             cls.redis_client.set(key, token, ex=expire_seconds)
             return
         except Exception as e:
@@ -36,8 +37,8 @@ class RedisTokenClient(TokenClientBase):
 
     @classmethod
     def get_token(cls, key: str) -> Optional[str]:
-        cls.init_redis()
         try:
+            cls.init_redis()
             return cls.redis_client.get(key)
         except Exception as e:
             _logger.error(f"Get token failed: {e}")
@@ -45,4 +46,20 @@ class RedisTokenClient(TokenClientBase):
 
     @classmethod
     def check_rate_limit(cls, key: str, time_window_seconds: int, max_requests: int) -> None:
-        return
+        # user zest to check rate limit
+        cur_timestamp = int(time.time())
+        try:
+            cls.init_redis()
+            cls.redis_client.zremrangebyscore(key, "-inf", cur_timestamp - time_window_seconds)
+            cls.redis_client.zadd(key, {cur_timestamp: cur_timestamp})
+            req_count = cls.redis_client.zcard(key)
+            if req_count >= max_requests:
+                raise HTTPException(
+                    status_code=429, detail="Rate limit exceeded"
+                )
+            return
+        except Exception as e:
+            _logger.error(f"Rate limit failed: {e}")
+        raise HTTPException(
+            status_code=400, detail="Rate limit failed"
+        )

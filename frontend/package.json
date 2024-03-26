@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "vite build --mode prod && rm -rf node_modules",
     "build:local": "vite build",
+    "build:docker": "vite build --emptyOutDir --outDir ../dist",
     "preview": "vite preview"
   },
   "dependencies": {
