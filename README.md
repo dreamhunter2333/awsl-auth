@@ -1,5 +1,13 @@
 # Awsl Auth
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/dreamhunter2333/awsl-auth)
+
+- [Awsl Auth](#awsl-auth)
+  - [Usage](#usage)
+  - [Deloy](#deloy)
+    - [Vercel 配置](#vercel-配置)
+    - [Docker](#docker)
+
 ```mermaid
 sequenceDiagram
     User->>ClentServer: cilck login
@@ -51,3 +59,93 @@ config `app_id` `app_secret` `redirect_url` in `.env` or ENV.
             }
         });
      ```
+
+## Deloy
+
+### Vercel 配置
+
+```dotenv
+enabled_db=false
+supabase_api_url=
+supabase_api_key=
+
+upstash_api_url=
+upstash_api_token=
+
+enabled_smtp=false
+smtp_url=smtp://username:passwd@smtp.xxxx.com:587
+
+cf_turnstile_site_key=
+cf_turnstile_secret_key=
+
+github_client_id=
+github_client_secret=
+google_client_id=
+google_client_secret=
+ms_client_id=
+ms_client_secret=
+
+app_settings__0__app_id=demo
+app_settings__0__app_secret=demo_secret
+app_settings__0__redirect_url=
+app_settings__1__app_id=app2
+app_settings__1__app_secret=app_secret2
+app_settings__1__redirect_url=http://localhost:5000/callback
+```
+
+### Docker
+
+使用 `docker-compose.yml` 部署
+
+```yaml
+services:
+  awsl-auth:
+    image: "gcr.io/dreamhunter2333/awsl-auth:latest"
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: "awsl-auth"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+      - /dev/null:/app/.env
+    environment:
+      # 数据库
+      - enabled_db=true
+      - db_client_type=sqlite
+      - sqlite_db_url=sqlite:////data/db.sqlite3
+      # Redis
+      - token_client_type=redis
+      - redis_url=redis://awsl-auth-redis:6379/0
+      # 邮件注册
+      - enabled_smtp=false
+      # - smtp_url=smtp://username:passwd@smtp.xxxx.com:587
+      # 邮件注册人机验证
+      # - cf_turnstile_site_key=
+      # - cf_turnstile_secret_key=
+      # 第三方登录
+      # - github_client_id=
+      # - github_client_secret=
+      # - google_client_id=
+      # - google_client_secret=
+      # - enabled_web3_client=true
+      # - ms_client_id=
+      # - ms_client_secret=
+      # 登录App设置
+      - app_settings__0__app_id=demo
+      - app_settings__0__app_secret=demo_secret
+      - app_settings__0__redirect_url=
+      - app_settings__1__app_id=app2
+      - app_settings__1__app_secret=app_secret2
+      - app_settings__1__redirect_url=http://localhost:5000/callback
+
+    depends_on:
+      - awsl-auth-redis
+
+  awsl-auth-redis:
+    image: "redis:alpine"
+    container_name: "awsl-auth-redis"
+    ports:
+      - "6379:6379"
+```

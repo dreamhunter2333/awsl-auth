@@ -26,9 +26,11 @@ class SqliteClient(DBClientBase):
         if cls.sessionmaker is None:
             engine = create_engine(settings.sqlite_db_url)
             tmp_sessionmaker = sessionmaker(bind=engine)
-            # TODO create table if not exists
-            # with tmp_sessionmaker() as session, open("db/sqlite3.sql") as f:
-            #     session.execute(text(f.read()))
+            # create table if not exists
+            with tmp_sessionmaker() as session, open("db/sqlite3.sql") as f:
+                for exec_sql in f.read().split(";"):
+                    if exec_sql.strip():
+                        session.execute(text(exec_sql))
             cls.sessionmaker = tmp_sessionmaker
 
     @classmethod
@@ -75,6 +77,7 @@ class SqliteClient(DBClientBase):
                     user_email=user.user_email,
                     password=user.password
                 ))
+                session.commit()
         except Exception as e:
             _logger.error(f"Failed to register user: {e}")
             raise HTTPException(
@@ -102,6 +105,7 @@ class SqliteClient(DBClientBase):
                     web3_account=user.web3_account,
                     origin_data=json.dumps(user.origin_data)
                 ))
+                session.commit()
         except Exception as e:
             _logger.error(f"Failed to update user: {e}")
             raise HTTPException(
