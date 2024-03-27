@@ -100,16 +100,12 @@ app_settings__1__redirect_url=http://localhost:5000/callback
 ```yaml
 services:
   awsl-auth:
-    image: "gcr.io/dreamhunter2333/awsl-auth:latest"
-    build:
-      context: .
-      dockerfile: dockerfile
+    image: ghcr.io/dreamhunter2333/awsl-auth:latest
     container_name: "awsl-auth"
     ports:
       - "8000:8000"
     volumes:
       - ./data:/data
-      - /dev/null:/app/.env
     environment:
       # 数据库
       - enabled_db=true
