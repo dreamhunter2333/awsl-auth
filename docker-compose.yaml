@@ -1,9 +1,9 @@
 services:
   awsl-auth:
-    image: "gcr.io/dreamhunter2333/awsl-auth:latest"
-    build:
-      context: .
-      dockerfile: dockerfile
+    image: ghcr.io/dreamhunter2333/awsl-auth:latest
+    # build:
+    #   context: .
+    #   dockerfile: dockerfile
     container_name: "awsl-auth"
     ports:
       - "8000:8000"

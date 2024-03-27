@@ -53,5 +53,5 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.actor }}/${{ github.repository }}:${{ steps.get_version.outputs.VERSION }}
-            ${{ env.REGISTRY }}/${{ github.actor }}/${{ github.repository }}:latest
+            ${{ env.REGISTRY }}/${{ github.repository }}:${{ steps.get_version.outputs.VERSION }}
+            ${{ env.REGISTRY }}/${{ github.repository }}:latest
