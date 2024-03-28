@@ -4,7 +4,7 @@ from typing import Optional
 
 from models import OauthBody, User
 
-from router.auth.base import AuthClientBase
+from src.auth.base import AuthClientBase
 
 _logger = logging.getLogger(__name__)
 

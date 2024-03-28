@@ -7,9 +7,9 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
 
-from router.auth_router import router as auth_router
-from router.info_router import router as info_router
-from router.user_router import router as user_router
+from src.auth_router import router as auth_router
+from src.info_router import router as info_router
+from src.user_router import router as user_router
 
 
 _logger = logging.getLogger(__name__)

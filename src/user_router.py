@@ -8,11 +8,11 @@ from fastapi import APIRouter, HTTPException, Request
 
 from config import settings
 from models import EmailUser, User
-from router.auth.email import MailAuthClient
-from router.cf_turnstile import CloudFlareTurnstile
-from router.db.base import DBClientBase
-from router.email.base import MailClientBase
-from router.token.base import TokenClientBase
+from src.auth.email import MailAuthClient
+from src.cf_turnstile import CloudFlareTurnstile
+from src.db.base import DBClientBase
+from src.email.base import MailClientBase
+from src.cache.base import TokenClientBase
 
 router = APIRouter()
 _logger = logging.getLogger(__name__)
@@ -69,7 +69,11 @@ def verify_code(email_user: EmailUser, request: Request):
         )
     code = "".join(random.choices(string.digits, k=6))
     token_client.store_token(f"email_verify_code:{email_user.email}", code, settings.verify_code_expire_seconds)
-    mail_client.send_verify_code(email_user.email, code)
+    # skip sending email in debug mode
+    if settings.debug:
+        _logger.info(f"Send verify code to {email_user.email}: {code}")
+    else:
+        mail_client.send_verify_code(email_user.email, code)
     return {
         "timeout": settings.verify_code_expire_seconds,
     }

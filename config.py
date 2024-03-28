@@ -20,8 +20,10 @@ class AppSettings(BaseModel):
 
 class Settings(BaseSettings):
 
+    debug: bool = False
+
     # token settings
-    token_client_type: str = "upstash"
+    cache_client_type: str = "upstash"
     redis_url: str = Field(default="", exclude=True)
     upstash_api_url: str = ""
     upstash_api_token: str = Field(default="", exclude=True)

@@ -111,8 +111,8 @@ services:
       - enabled_db=true
       - db_client_type=sqlite
       - sqlite_db_url=sqlite:////data/db.sqlite3
-      # Redis
-      - token_client_type=redis
+      # cache client type: memory/redis/upstash
+      - cache_client_type=redis
       - redis_url=redis://awsl-auth-redis:6379/0
       # 邮件注册
       - enabled_smtp=false

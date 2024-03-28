@@ -15,17 +15,18 @@ class CloudFlareTurnstile:
         if not settings.cf_turnstile_secret_key:
             return True
         try:
-            res = requests.post(URL, data={
+            res = requests.post(URL, json={
                 "secret": settings.cf_turnstile_secret_key,
                 "response": token,
             }, headers={
                 "Content-Type": "application/json",
             }).json()
-            if not res.get("success"):
-                raise HTTPException(
-                    status_code=400, detail="CloudFlare Turnstile error"
-                )
+            if res.get("success"):
+                return True
         except Exception as e:
             raise HTTPException(
                 status_code=400, detail=f"CloudFlare Turnstile error: {e}"
             )
+        raise HTTPException(
+            status_code=400, detail="CloudFlare Turnstile error"
+        )

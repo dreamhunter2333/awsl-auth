@@ -7,9 +7,9 @@ from fastapi import APIRouter, HTTPException
 
 from config import settings
 from models import OauthBody, TokenBody
-from router.auth import AuthClientBase
-from router.db.base import DBClientBase
-from router.token.base import TokenClientBase
+from src.auth import AuthClientBase
+from src.db.base import DBClientBase
+from src.cache.base import TokenClientBase
 
 router = APIRouter()
 _logger = logging.getLogger(__name__)

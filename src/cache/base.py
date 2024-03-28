@@ -19,7 +19,7 @@ class TokenClientBase(metaclass=MetaTokenClient):
 
     @staticmethod
     def get_client() -> "TokenClientBase":
-        cls = MetaTokenClient.cilent_map.get(settings.token_client_type)
+        cls = MetaTokenClient.cilent_map.get(settings.cache_client_type)
         if cls is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

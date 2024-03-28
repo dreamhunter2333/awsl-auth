@@ -35,27 +35,27 @@ class SqliteClient(DBClientBase):
 
     @classmethod
     def login_user(cls, user: User) -> bool:
-        user_in_db = None
+        password_in_db = None
         try:
             cls.init_db_client()
             exex_sql = text(
-                "SELECT * FROM awsl_users WHERE user_email = :user_email"
+                "SELECT password FROM awsl_users WHERE user_email = :user_email"
             )
             with cls.sessionmaker() as session:
                 res = session.execute(
-                    exex_sql.bind_arguments(user_email=user.user_email)
+                    exex_sql.bindparams(user_email=user.user_email)
                 )
-                user_in_db = res.fetchone()
+                password_in_db = res.fetchone()
         except Exception as e:
             _logger.error(f"Failed to query user: {e}")
             raise HTTPException(
                 status_code=400, detail=f"Failed to query user: {e}"
             )
-        if not user_in_db:
+        if not password_in_db:
             raise HTTPException(
                 status_code=400, detail="User not found"
             )
-        if not secrets.compare_digest(user_in_db.get("password", ""), user.password):
+        if not secrets.compare_digest(password_in_db[0], user.password):
             raise HTTPException(
                 status_code=400, detail="User password incorrect"
             )
