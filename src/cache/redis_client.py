@@ -59,6 +59,8 @@ class RedisTokenClient(TokenClientBase):
                 )
             return
         except Exception as e:
+            if isinstance(e, HTTPException):
+                raise e
             _logger.error(f"Rate limit failed: {e}")
         raise HTTPException(
             status_code=400, detail="Rate limit failed"
