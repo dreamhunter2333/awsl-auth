@@ -10,13 +10,12 @@ import { computed, onMounted, ref, watch } from "vue";
 import { api } from '../api';
 import { useGlobalState } from '../store'
 
-const { settings, appIdSession, themeSwitch } = useGlobalState()
+const { settings, appIdSession, isDark } = useGlobalState()
 const message = useMessage();
 const route = useRoute();
 const router = useRouter();
 
-const tabValue = ref("tabValue");
-tabValue.value = "signin";
+const tabValue = ref("signin");
 const showModal = ref(false);
 const user = ref({
     email: "",
@@ -169,7 +168,7 @@ const checkCfTurnstile = async (remove) => {
         {
             sitekey: settings.value.cf_turnstile_site_key,
             language: 'zh-CN',
-            theme: themeSwitch.value ? 'dark' : 'light',
+            theme: isDark.value ? 'dark' : 'light',
             callback: function (token) {
                 cf_token.value = token;
             },
@@ -177,7 +176,7 @@ const checkCfTurnstile = async (remove) => {
     );
 }
 
-watch([tabValue, themeSwitch, showModal], async ([newValue, oldValue], [newTheme, oldTheme]) => {
+watch([tabValue, isDark, showModal], async ([newValue, oldValue], [newTheme, oldTheme]) => {
     checkCfTurnstile(newValue != "signup")
 }, { immediate: true })
 
@@ -197,8 +196,7 @@ onMounted(async () => {
 <template>
     <div class="main">
         <n-card style="max-width: 500px;">
-            <img style="max-height: 50px; max-width: auto;" src="/awsl.png">
-            <n-tabs v-model:value="tabValue" default-value="signin" size="large" justify-content="space-evenly">
+            <n-tabs v-model:value="tabValue" size="large" justify-content="space-evenly">
                 <n-tab-pane name="signin" tab="登录">
                     <n-form v-if="settings.enabled_smtp">
                         <n-form-item-row label="邮箱" required>
@@ -248,8 +246,13 @@ onMounted(async () => {
                         <n-form-item-row label="密码" required>
                             <n-input v-model:value="user.password" type="password" show-password-on="click" />
                         </n-form-item-row>
-                        <div v-if="settings.cf_turnstile_site_key && !cf_turnstile_id">人机验证正在加载...</div>
-                        <div v-if="settings.cf_turnstile_site_key" id="cf-turnstile"></div>
+                        <n-form-item-row v-if="settings.cf_turnstile_site_key" label="人机验证">
+                            <div v-if="!cf_turnstile_id">人机验证正在加载...</div>
+                            <div id="cf-turnstile"></div>
+                            <n-button @click="checkCfTurnstile(true)" style="height: 100%;">
+                                刷新
+                            </n-button>
+                        </n-form-item-row>
                         <n-form-item-row label="验证码" required>
                             <n-input-group>
                                 <n-input v-model:value="user.code" />
@@ -274,8 +277,13 @@ onMounted(async () => {
                 <n-form-item-row label="新密码" required>
                     <n-input v-model:value="user.password" type="password" show-password-on="click" />
                 </n-form-item-row>
-                <div v-if="settings.cf_turnstile_site_key && !cf_turnstile_id">人机验证正在加载...</div>
-                <div v-if="settings.cf_turnstile_site_key" id="cf-turnstile"></div>
+                <n-form-item-row v-if="settings.cf_turnstile_site_key" label="人机验证">
+                    <div v-if="!cf_turnstile_id">人机验证正在加载...</div>
+                    <div id="cf-turnstile"></div>
+                    <n-button @click="checkCfTurnstile(true)" style="height: 100%;">
+                        刷新
+                    </n-button>
+                </n-form-item-row>
                 <n-form-item-row label="验证码" required>
                     <n-input-group>
                         <n-input v-model:value="user.code" />

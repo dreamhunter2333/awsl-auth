@@ -8,9 +8,9 @@ import { useGlobalState } from './store'
 
 import Header from './views/Header.vue';
 
-const { themeSwitch, loading } = useGlobalState()
+const { isDark, loading } = useGlobalState()
 
-const theme = computed(() => themeSwitch.value ? darkTheme : null)
+const theme = computed(() => isDark.value ? darkTheme : null)
 </script>
 
 <template>
