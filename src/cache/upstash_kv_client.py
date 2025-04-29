@@ -66,6 +66,7 @@ class UpstashTokenClient(TokenClientBase):
                 data="["
                 f'["ZREMRANGEBYSCORE", "{key}", "-inf", {cur_timestamp - time_window_seconds}],'
                 f'["ZADD", "{key}", {cur_timestamp}, {cur_timestamp}],'
+                f'["EXPIRE", "{key}", {time_window_seconds}],'
                 f'["ZCARD", "{key}"]'
                 "]",
                 headers={
@@ -73,11 +74,11 @@ class UpstashTokenClient(TokenClientBase):
                     "Content-Type": "application/json",
                 }
             ).json()
-            if not all(["result" in r for r in res]) or len(res) != 3:
+            if not all(["result" in r for r in res]) or len(res) != 4:
                 raise HTTPException(
                     status_code=400, detail="Can't get rate limit result"
                 )
-            _, _, req_count = res
+            _, _, _, req_count = res
             if req_count.get("result", 0) >= max_requests:
                 raise HTTPException(
                     status_code=429, detail="Rate limit exceeded"
