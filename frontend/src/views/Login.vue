@@ -234,8 +234,7 @@ onMounted(async () => {
                     </n-button>
                     <n-button v-if="isEnableWeb3" block @click="web3Login">
                         <template #icon>
-                            <img src="https://metamask.io/images/metamask-logo.png"
-                                style="height: 20px; width: auto;" />
+                            <img src="/metamask.ico" style="height: 20px; width: auto;" />
                         </template>
                         MetaMask 登录
                     </n-button>
