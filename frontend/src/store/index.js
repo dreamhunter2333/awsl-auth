@@ -9,6 +9,7 @@ export const useGlobalState = createGlobalState(
         const jwtSession = useSessionStorage('jwtSession', '');
         const appIdSession = useSessionStorage('appIdSession', 'demo');
         const settings = ref({
+            fetched: false,
             enabled_smtp: false,
             enabled_github: false,
             enabled_google: false,

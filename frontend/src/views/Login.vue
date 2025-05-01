@@ -189,6 +189,8 @@ onMounted(async () => {
         settings.value = res;
     } catch (error) {
         message.error(error.message || "获取设置失败");
+    } finally {
+        settings.value.fetched = true;
     }
 });
 </script>
