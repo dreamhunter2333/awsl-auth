@@ -198,7 +198,7 @@ onMounted(async () => {
 <template>
     <div class="main">
         <n-card style="max-width: 500px;">
-            <n-tabs v-model:value="tabValue" size="large" justify-content="space-evenly">
+            <n-tabs v-if="settings.fetched" v-model:value="tabValue" size="large" justify-content="space-evenly">
                 <n-tab-pane name="signin" tab="登录">
                     <n-form v-if="settings.enabled_smtp">
                         <n-form-item-row label="邮箱" required>
