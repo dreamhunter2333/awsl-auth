@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ export function Demo({
     className,
     ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-    const navigate = useNavigate()
     const { apiFetch } = UseApiClient()
     const [URLSearchParams] = useSearchParams();
     const { jwtSession, setJwtSession, appIdSession } = useGlobal();
