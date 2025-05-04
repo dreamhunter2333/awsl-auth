@@ -115,10 +115,10 @@ export function LoginForm({
                                 Metamask 登录
                             </Button>}
                         </div>
+                        <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+                        </div>
                         {settings.enabled_smtp &&
                             <div>
-                                <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                                </div>
                                 <div className="grid gap-6">
                                     <div className="grid gap-2">
                                         <Label htmlFor="email">邮箱</Label>

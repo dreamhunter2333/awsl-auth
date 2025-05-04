@@ -17,7 +17,7 @@ export function Demo({
     const [user, setUser] = useState<Record<string, string>>({});
     useEffect(() => {
         const code = URLSearchParams.get("code");
-        const loginApiCall = async () => {
+        const fetchData = async () => {
             if (!code && !jwtSession) {
                 return;
             }
@@ -56,7 +56,7 @@ export function Demo({
                 toast.error((error as Error).message || "获取用户信息失败");
             }
         }
-        loginApiCall();
+        fetchData();
     }, []);
 
     return (
@@ -72,7 +72,7 @@ export function Demo({
                         ) : (
                             <p className="text-sm">您还没有登录</p>
                         )}
-                    <Button variant="outline" asChild className="w-full">
+                    <Button variant="outline" asChild className="w-full mt-4">
                         <Link to="/">返回登录</Link>
                     </Button>
                 </CardContent>
